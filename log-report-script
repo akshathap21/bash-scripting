@@ -1,0 +1,66 @@
+#!/bin/bash
+
+Log_File="sample.log"
+
+check_file(){
+	if [ ! -f "$Log_File" ]; then
+		echo "File not found" >&2
+		exit 1
+	fi
+}
+
+print_summary(){
+	local number_of_lines error_count disk_warning
+
+	number_of_lines=$(wc -l < "$Log_File" )
+	error_count=$(grep -ic "ERROR" "$Log_File" || true)
+	disk_warning=$(grep -ic "disk usage warning" "$Log_File" || true)
+
+	 echo "=========================================="
+  echo "         SYSTEM LOG ANALYSIS REPORT       "
+  echo "=========================================="
+  echo "1. Total No. of Lines          : $number_of_lines"
+  echo "2. Total No. of ERROR Entries  : $error_count"
+  echo "3. Total Disk Usage Warnings   : $disk_warning"
+}
+
+most_failed_logins() {
+  local result
+  # Extracts the last word (username) from matching lines, counts, and picks top 1
+  result=$(grep -i "Failed login" "$Log_File" | awk '{print $NF}' | sort | uniq -c | sort -nr | head -n 1 || true)
+
+  if [ -n "$result" ]; then
+    echo "4. Most Failed Login Attempts  : $result"
+  else
+    echo "4. Most Failed Login Attempts  : None found"
+  fi
+}
+
+files_accessed_by_user() {
+  echo "------------------------------------------"
+  echo "5. Files Accessed by Each User:"
+
+  # Get unique list of users who accessed files
+  local users
+  users=$(grep -i "accessed file" "$Log_File" | awk '{print $5}' | sort -u || true)
+
+  if [ -z "$users" ]; then
+    echo "   No file access records found."
+    return
+  fi
+
+  for user in $users; do
+    echo "   User: $user"
+    grep -i "User $user accessed file" "$Log_File" | awk '{print "     - " $NF}' | sort -u
+  done
+  echo "=========================================="
+}
+
+main(){
+	check_file
+	print_summary
+	most_failed_logins
+	files_accessed_by_user
+}
+
+main "$@"
