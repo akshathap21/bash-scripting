@@ -1,0 +1,18 @@
+dest_dir="/mnt/c/Users/Akash P/Desktop/AkshathaP/bash-scripting/forloop/dstnt"
+
+# Ensure the destination folder exists
+mkdir -p "$dest_dir"
+
+for file in *.txt
+do
+ 
+ [ -e "$file" ] || continue
+
+filename=$(basename "$file" )
+
+name_only="${filename%.txt}"
+
+cp "$file" "$dest_dir/${name_only}.bak"
+
+done
+

@@ -1,0 +1,17 @@
+backup_file() {
+  local src="$1"
+  local dest="$2"
+
+  # Check if the source file actually exists first
+  if [ ! -f "$src" ]; then
+    echo "Error: '$src' does not exist. Skipping backup."
+    return 1
+  fi
+
+  cp "$src" "$dest"
+  echo "Backed up $src to $dest"
+}
+
+# Example usage:
+backup_file "notes.txt" "/tmp/notes.bak"
+
