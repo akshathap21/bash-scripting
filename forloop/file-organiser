@@ -1,0 +1,22 @@
+#!/bin/bash
+
+for file in *
+do 
+ [ -f "$file" ] || continue
+log_path="/mnt/c/Users/Akash P/Desktop/AkshathaP/bash-scripting/forloop/log"
+txt_path="/mnt/c/Users/Akash P/Desktop/AkshathaP/bash-scripting/forloop/txt"
+csv_path="/mnt/c/Users/Akash P/Desktop/AkshathaP/bash-scripting/forloop/csv"
+mkdir -p "$log_path"
+mkdir -p "$txt_path"
+mkdir -p "$csv_path"
+filename=$(basename "$file")
+ext="${filename##*.}"
+if [ "$ext" == "log" ]; then
+cp "$file" "$log_path"
+elif [ "$ext" == "txt" ]; then
+cp "$file" "$txt_path"
+elif [ "$ext" == "csv" ]; then
+cp "$file" "$csv_path"
+fi
+done
+
