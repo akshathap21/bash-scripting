@@ -1,0 +1,30 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+LOG_DIR="/var/log/myapp"
+ARCHIVE_DIR="/var/log/myapp/archive"
+
+log_info() { echo "[$(date +'%H:%M:%S')] [INFO] $*"; }
+
+archive_file() {
+  local filepath="$1"
+  local filename="${filepath##*/}"
+  local name_only="${filename%.log}"
+  local timestamp
+  timestamp=$(date +'%Y%m%d')
+
+  mkdir -p "$ARCHIVE_DIR"
+  gzip -c "$filepath" > "${ARCHIVE_DIR}/${name_only}_${timestamp}.log.gz"
+  : > "$filepath"  # Safely truncate active log without breaking open file handles
+  log_info "Archived $filename"
+}
+
+main() {
+  for logfile in "$LOG_DIR"/*.log; do
+    [ -f "$logfile" ] || continue
+    archive_file "$logfile"
+  done
+}
+
+main "$@"
+
